@@ -25,8 +25,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hrmsportal
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+       SERVER_PORT: 9090 
     ports:
-      - "9393:8080"
+      - "9393:9090"
     depends_on:
       mysql:
         condition: service_healthy   # ✅ MySQL ready झाल्यावरच backend सुरू होईल
