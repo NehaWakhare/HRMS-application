@@ -1,44 +1,43 @@
-version: '3.4'
- 
+version: "3.8"
+
 services:
-  springboot-service:
-    image: shamkumbhar47/backend:githubactionb
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-service:3306/hrmsportal
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-    ports:
-      - "8080:8080"
-    depends_on:
-      - mysql-service
-    networks:
-      - mynetwork
-   
-  frontend:
-    image: shamkumbhar47/frontend:hrmstej04
-    ports:
-      - "4200:80"
-    depends_on:
-      - mysql-service
-    networks:
-      - mynetwork
- 
-  mysql-service:
+  mysql:
     image: mysql:8.0
+    container_name: mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "root"
-      MYSQL_DATABASE: "hrmsportal"
-      MYSQL_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: hrmsportal
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-    networks:
-      - mynetwork
-    
-networks:
-  mynetwork:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  springboot-service:
+    image: neha676/backend:v2
+    container_name: springboot-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/hrmsportal
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "9292:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy   # ✅ MySQL ready झाल्यावरच backend सुरू होईल
+
+  frontend:
+    image: neha676/frontend:v2
+    container_name: frontend
+    ports:
+      - "3300:80"
+    depends_on:
+      - springboot-service
 
 volumes:
   mysql-data:
-
